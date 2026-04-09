@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """
-uploads/ フォルダにある sb3 ファイルを
+uploads/ フォルダにある html または sb3 ファイルを
 works/ フォルダにコピーし、works.json を更新するスクリプト。
 
-sb3 ファイルの命名ルール:
-  {作者名}_{作品タイトル}.sb3
-  例: たろう_ねこのゲーム.sb3
-
-アンダースコアが含まれない場合はファイル名全体を作品タイトルとして使用。
+ファイルの命名ルール:
+  {作者名}_{作品タイトル}.html  （TurboWarp Packagerで変換済みのHTML）
+  {作者名}_{作品タイトル}.sb3   （sb3ファイル）
+  例: たろう_ねこのゲーム.html
 """
 
 import json
@@ -22,7 +21,6 @@ WORKS_JSON  = Path("works.json")
 
 WORKS_DIR.mkdir(exist_ok=True)
 
-# 既存の works.json を読み込む
 if WORKS_JSON.exists():
     with open(WORKS_JSON, encoding="utf-8") as f:
         works: list[dict] = json.load(f)
@@ -31,9 +29,10 @@ else:
 
 existing_ids = {w["id"] for w in works}
 
-# uploads/ にある sb3 を処理
-for sb3_path in sorted(UPLOADS_DIR.glob("*.sb3")):
-    stem = sb3_path.stem
+# .html と .sb3 の両方を処理
+for path in sorted(list(UPLOADS_DIR.glob("*.html")) + list(UPLOADS_DIR.glob("*.sb3"))):
+    stem = path.stem
+    ext  = path.suffix  # .html or .sb3
 
     if "_" in stem:
         author, title = stem.split("_", 1)
@@ -47,20 +46,21 @@ for sb3_path in sorted(UPLOADS_DIR.glob("*.sb3")):
         work_id = f"{base_id}-{counter}"
         counter += 1
 
-    dest_sb3 = WORKS_DIR / f"{work_id}.sb3"
-    if dest_sb3.exists():
-        print(f"スキップ（既に登録済み）: {sb3_path.name}")
+    dest = WORKS_DIR / f"{work_id}{ext}"
+    if dest.exists():
+        print(f"スキップ（既に登録済み）: {path.name}")
         continue
 
-    print(f"コピー中: {sb3_path.name} → works/{work_id}.sb3")
-    shutil.copy2(sb3_path, dest_sb3)
+    print(f"コピー中: {path.name} → works/{work_id}{ext}")
+    shutil.copy2(path, dest)
 
     entry = {
         "id":     work_id,
         "title":  title,
         "author": author,
         "date":   date.today().isoformat(),
-        "file":   f"{work_id}.sb3",
+        "file":   f"{work_id}{ext}",
+        "type":   "html" if ext == ".html" else "sb3",
     }
     works.append(entry)
     existing_ids.add(work_id)
