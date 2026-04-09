@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-uploads/ フォルダにある html または sb3 ファイルを
+uploads/ フォルダにある html ファイルを
 works/ フォルダにコピーし、works.json を更新するスクリプト。
 
 ファイルの命名ルール:
   {作者名}_{作品タイトル}.html  （TurboWarp Packagerで変換済みのHTML）
-  {作者名}_{作品タイトル}.sb3   （sb3ファイル）
+  {作者名}_{作品タイトル}.png   （サムネイル画像、省略可）
   例: たろう_ねこのゲーム.html
+      たろう_ねこのゲーム.png
 """
 
 import json
@@ -29,10 +30,8 @@ else:
 
 existing_ids = {w["id"] for w in works}
 
-# .html と .sb3 の両方を処理
-for path in sorted(list(UPLOADS_DIR.glob("*.html")) + list(UPLOADS_DIR.glob("*.sb3"))):
+for path in sorted(UPLOADS_DIR.glob("*.html")):
     stem = path.stem
-    ext  = path.suffix  # .html or .sb3
 
     if "_" in stem:
         author, title = stem.split("_", 1)
@@ -46,21 +45,33 @@ for path in sorted(list(UPLOADS_DIR.glob("*.html")) + list(UPLOADS_DIR.glob("*.s
         work_id = f"{base_id}-{counter}"
         counter += 1
 
-    dest = WORKS_DIR / f"{work_id}{ext}"
-    if dest.exists():
+    dest_html = WORKS_DIR / f"{work_id}.html"
+    if dest_html.exists():
         print(f"スキップ（既に登録済み）: {path.name}")
         continue
 
-    print(f"コピー中: {path.name} → works/{work_id}{ext}")
-    shutil.copy2(path, dest)
+    print(f"コピー中: {path.name} → works/{work_id}.html")
+    shutil.copy2(path, dest_html)
+
+    # 同名のpngがあればサムネイルとしてコピー
+    thumbnail = None
+    for ext in (".png", ".jpg", ".jpeg"):
+        img_path = UPLOADS_DIR / f"{stem}{ext}"
+        if img_path.exists():
+            dest_img = WORKS_DIR / f"{work_id}{ext}"
+            shutil.copy2(img_path, dest_img)
+            thumbnail = f"{work_id}{ext}"
+            print(f"  🖼 サムネイル: {img_path.name} → works/{thumbnail}")
+            break
 
     entry = {
-        "id":     work_id,
-        "title":  title,
-        "author": author,
-        "date":   date.today().isoformat(),
-        "file":   f"{work_id}{ext}",
-        "type":   "html" if ext == ".html" else "sb3",
+        "id":        work_id,
+        "title":     title,
+        "author":    author,
+        "date":      date.today().isoformat(),
+        "file":      f"{work_id}.html",
+        "type":      "html",
+        "thumbnail": thumbnail,
     }
     works.append(entry)
     existing_ids.add(work_id)
