@@ -97,6 +97,12 @@
     }
 
     works.sort((a, b) => new Date(b.date) - new Date(a.date));
+    works = works.filter(w => !w.hidden);
+
+    if (works.length === 0) {
+      gallery.innerHTML = `<div class="empty-state"><span class="empty-icon">🚀</span><p>作品がまだありません。<br>さっそくアップロードしよう！</p></div>`;
+      return;
+    }
 
     works.forEach(work => {
       const card = document.createElement('a');
