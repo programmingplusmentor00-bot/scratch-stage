@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔧 管理画面 - スクラッチギャラリー</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Kosugi+Maru&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --accent: #6366f1;
+      --accent2: #f43f5e;
+      --green: #22c55e;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Kosugi Maru', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ===== LOGIN ===== */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 60% 40%, #1e1b4b 0%, #0f172a 70%);
+    }
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 32px 64px rgba(0,0,0,0.4);
+    }
+    .login-icon { font-size: 56px; display: block; margin-bottom: 16px; }
+    .login-card h1 {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .login-card p { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+    .login-input {
+      width: 100%;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-family: 'Kosugi Maru', sans-serif;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      text-align: center;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+    }
+    .login-input:focus { border-color: var(--accent); }
+    .login-btn {
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 16px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .login-error {
+      color: var(--accent2);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ===== ADMIN ===== */
+    #admin-screen { display: none; }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-left h1 {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 20px;
+    }
+    .back-link {
+      background: var(--border);
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .back-link:hover { background: #475569; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      text-align: center;
+    }
+    .stat-num {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 36px;
+      line-height: 1;
+    }
+    .stat-num.total { color: var(--accent); }
+    .stat-num.visible { color: var(--green); }
+    .stat-num.hidden { color: var(--accent2); }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+    .section-title {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .work-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .work-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+    .work-item.is-hidden {
+      opacity: 0.5;
+      border-style: dashed;
+    }
+    .work-thumb {
+      width: 80px;
+      height: 50px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .work-thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .work-info { flex: 1; min-width: 0; }
+    .work-title {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .work-meta { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .work-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-family: 'Kosugi Maru', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-show { background: var(--green); color: white; }
+    .btn-hide { background: #f59e0b; color: white; }
+
+    .save-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--accent);
+      padding: 16px 32px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 15px;
+      box-shadow: 0 -8px 32px rgba(99,102,241,0.4);
+    }
+    .save-bar.visible { display: flex; }
+    .save-btn {
+      background: white;
+      color: var(--accent);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 24px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 15px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .save-btn:hover { opacity: 0.9; }
+
+    .empty { text-align: center; padding: 64px; color: var(--muted); font-size: 18px; }
+
+    @media(max-width: 600px) {
+      .stats { grid-template-columns: 1fr; }
+      .work-item { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ログイン画面 -->
+<div id="login-screen">
+  <div class="login-card">
+    <span class="login-icon">🔐</span>
+    <h1>管理画面</h1>
+    <p>パスワードを入力してください</p>
+    <input type="password" class="login-input" id="pw-input" placeholder="••••••••" autofocus>
+    <button class="login-btn" onclick="login()">ログイン</button>
+    <p class="login-error" id="login-error">パスワードが違います</p>
+  </div>
+</div>
+
+<!-- 管理画面 -->
+<div id="admin-screen">
+  <header>
+    <div class="header-left">
+      <span>🔧</span>
+      <h1>作品管理</h1>
+    </div>
+    <a class="back-link" href="index.html">← ギャラリーへもどる</a>
+  </header>
+
+  <main>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-num total" id="stat-total">0</div>
+        <div class="stat-label">合計作品数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num visible" id="stat-visible">0</div>
+        <div class="stat-label">表示中</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num hidden" id="stat-hidden">0</div>
+        <div class="stat-label">非表示</div>
+      </div>
+    </div>
+
+    <div class="section-title">作品いちらん</div>
+    <div class="work-list" id="work-list">
+      <div class="empty">よみこみちゅう…</div>
+    </div>
+  </main>
+</div>
+
+<!-- 保存バー -->
+<div class="save-bar" id="save-bar">
+  <span>⚠️ 変更があります。保存してください。</span>
+  <button class="save-btn" onclick="saveChanges()">💾 保存する</button>
+</div>
+
+<script>
+  const PASSWORD = 'mentor00';
+  let works = [];
+  let changed = false;
+
+  // ===== ログイン =====
+  function login() {
+    const val = document.getElementById('pw-input').value;
+    if (val === PASSWORD) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-screen').style.display = 'block';
+      loadWorks();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  }
+
+  document.getElementById('pw-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') login();
+  });
+
+  // ===== 作品読み込み =====
+  async function loadWorks() {
+    try {
+      const res = await fetch('works.json?t=' + Date.now());
+      works = await res.json();
+    } catch(e) {
+      works = [];
+    }
+    renderList();
+  }
+
+  // ===== 一覧描画 =====
+  function renderList() {
+    const list = document.getElementById('work-list');
+    const total   = works.length;
+    const hidden  = works.filter(w => w.hidden).length;
+    const visible = total - hidden;
+
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-visible').textContent = visible;
+    document.getElementById('stat-hidden').textContent  = hidden;
+
+    if (total === 0) {
+      list.innerHTML = '<div class="empty">作品がまだありません</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    [...works].sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(work => {
+      const item = document.createElement('div');
+      item.className = 'work-item' + (work.hidden ? ' is-hidden' : '');
+      item.dataset.id = work.id;
+
+      const thumbHTML = work.thumbnail
+        ? `<img src="works/${work.thumbnail}" alt="">`
+        : '💻';
+
+      const dateStr = work.date
+        ? new Date(work.date).toLocaleDateString('ja-JP', {year:'numeric',month:'long',day:'numeric'})
+        : '';
+
+      const btnHTML = work.hidden
+        ? `<button class="btn btn-show" onclick="toggleHidden('${work.id}', false)">✅ 表示する</button>`
+        : `<button class="btn btn-hide" onclick="toggleHidden('${work.id}', true)">🙈 非表示</button>`;
+
+      item.innerHTML = `
+        <div class="work-thumb">${thumbHTML}</div>
+        <div class="work-info">
+          <div class="work-title">${esc(work.title)}</div>
+          <div class="work-meta">✏️ ${esc(work.author || 'なまえなし')} ／ 📅 ${dateStr}${work.hidden ? ' ／ 🙈 非表示中' : ''}</div>
+        </div>
+        <div class="work-actions">${btnHTML}</div>`;
+
+      list.appendChild(item);
+    });
+  }
+
+  // ===== 表示/非表示切り替え =====
+  function toggleHidden(id, hide) {
+    const work = works.find(w => w.id === id);
+    if (!work) return;
+    work.hidden = hide;
+    changed = true;
+    document.getElementById('save-bar').classList.add('visible');
+    renderList();
+  }
+
+  // ===== 保存（works.jsonをダウンロード） =====
+  function saveChanges() {
+    const json = JSON.stringify(works, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'works.json';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    document.getElementById('save-bar').classList.remove('visible');
+    changed = false;
+
+    alert('works.json をダウンロードしました！\nGitHubの works.json をこのファイルで上書きしてください。');
+  }
+
+  function esc(str) {
+    return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+</script>
+</body>
+</html>
