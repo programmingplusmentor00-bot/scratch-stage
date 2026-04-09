@@ -27,7 +27,6 @@
       overflow-x: hidden;
     }
 
-    /* ===== HEADER ===== */
     header {
       position: relative;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f64f59 100%);
@@ -79,7 +78,6 @@
       width: 100%;
     }
 
-    /* ===== FLOATING DECORATIONS ===== */
     .deco {
       position: absolute;
       border-radius: 50%;
@@ -95,7 +93,6 @@
       50% { transform: translateY(-20px) rotate(10deg); }
     }
 
-    /* ===== MAIN CONTENT ===== */
     main {
       max-width: 1100px;
       margin: 0 auto;
@@ -121,14 +118,12 @@
       border-radius: 2px;
     }
 
-    /* ===== GALLERY GRID ===== */
     .gallery {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 28px;
     }
 
-    /* ===== CARD ===== */
     .card {
       background: white;
       border-radius: var(--card-radius);
@@ -147,10 +142,7 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
 
-    .card-accent {
-      height: 8px;
-    }
-
+    .card-accent { height: 8px; }
     .card:nth-child(5n+1) .card-accent { background: linear-gradient(90deg, var(--yellow), var(--orange)); }
     .card:nth-child(5n+2) .card-accent { background: linear-gradient(90deg, var(--pink), var(--purple)); }
     .card:nth-child(5n+3) .card-accent { background: linear-gradient(90deg, var(--blue), var(--green)); }
@@ -167,17 +159,6 @@
       font-size: 56px;
       overflow: hidden;
       position: relative;
-    }
-
-    .card-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .card-thumb .thumb-icon {
-      font-size: 56px;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
     }
 
     .play-badge {
@@ -197,13 +178,9 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.2);
     }
 
-    .card:hover .play-badge {
-      transform: translate(-50%, -50%) scale(1);
-    }
+    .card:hover .play-badge { transform: translate(-50%, -50%) scale(1); }
 
-    .card-body {
-      padding: 18px 20px 20px;
-    }
+    .card-body { padding: 18px 20px 20px; }
 
     .card-title {
       font-family: 'Nunito', sans-serif;
@@ -216,55 +193,17 @@
       text-overflow: ellipsis;
     }
 
-    .card-author {
-      font-size: 14px;
-      color: #888;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .card-author { font-size: 14px; color: #888; display: flex; align-items: center; gap: 6px; }
+    .card-author::before { content: '✏️'; font-size: 13px; }
+    .card-date { font-size: 12px; color: #bbb; margin-top: 8px; }
 
-    .card-author::before {
-      content: '✏️';
-      font-size: 13px;
-    }
+    .empty-state { grid-column: 1 / -1; text-align: center; padding: 64px 24px; color: #aaa; }
+    .empty-state .empty-icon { font-size: 80px; display: block; margin-bottom: 16px; }
+    .empty-state p { font-size: 20px; }
 
-    .card-date {
-      font-size: 12px;
-      color: #bbb;
-      margin-top: 8px;
-    }
+    footer { text-align: center; padding: 32px; color: #bbb; font-size: 14px; }
 
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 64px 24px;
-      color: #aaa;
-    }
-
-    .empty-state .empty-icon {
-      font-size: 80px;
-      display: block;
-      margin-bottom: 16px;
-    }
-
-    .empty-state p {
-      font-size: 20px;
-    }
-
-    /* ===== FOOTER ===== */
-    footer {
-      text-align: center;
-      padding: 32px;
-      color: #bbb;
-      font-size: 14px;
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 480px) {
-      .gallery { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 480px) { .gallery { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -283,9 +222,7 @@
 
 <main>
   <h2 class="section-title">✨ 作品いちらん</h2>
-  <div class="gallery" id="gallery">
-    <!-- JavaScript で動的に生成 -->
-  </div>
+  <div class="gallery" id="gallery"></div>
 </main>
 
 <footer>
@@ -293,18 +230,14 @@
 </footer>
 
 <script>
-  // works.json を読み込んで作品カードを生成
   async function loadGallery() {
     const gallery = document.getElementById('gallery');
-
     let works = [];
     try {
       const res = await fetch('works.json');
       if (!res.ok) throw new Error('not found');
       works = await res.json();
-    } catch (e) {
-      // works.json がない場合は空表示
-    }
+    } catch (e) {}
 
     if (works.length === 0) {
       gallery.innerHTML = `
@@ -315,19 +248,14 @@
       return;
     }
 
-    // 新しい順に並べ替え
     works.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     works.forEach(work => {
       const card = document.createElement('a');
       card.className = 'card';
-      card.href = `works/${work.id}/index.html`;
+      card.href = `player.html?file=works/${work.file}&title=${encodeURIComponent(work.title)}&author=${encodeURIComponent(work.author || '')}`;
       card.target = '_blank';
       card.rel = 'noopener noreferrer';
-
-      const thumbHTML = work.thumbnail
-        ? `<img src="works/${work.id}/${work.thumbnail}" alt="${work.title}" loading="lazy">`
-        : `<span class="thumb-icon">💻</span>`;
 
       const dateStr = work.date
         ? new Date(work.date).toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric' })
@@ -336,12 +264,12 @@
       card.innerHTML = `
         <div class="card-accent"></div>
         <div class="card-thumb">
-          ${thumbHTML}
+          <span style="font-size:56px">💻</span>
           <div class="play-badge">▶️</div>
         </div>
         <div class="card-body">
-          <div class="card-title">${escHtml(work.title)}</div>
-          <div class="card-author">${escHtml(work.author || 'なまえなし')}</div>
+          <div class="card-title">${esc(work.title)}</div>
+          <div class="card-author">${esc(work.author || 'なまえなし')}</div>
           ${dateStr ? `<div class="card-date">📅 ${dateStr}</div>` : ''}
         </div>`;
 
@@ -349,7 +277,7 @@
     });
   }
 
-  function escHtml(str) {
+  function esc(str) {
     return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
