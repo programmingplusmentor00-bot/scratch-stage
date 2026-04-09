@@ -7,5 +7,23 @@
     "file": "tomo_流れ星アート.html",
     "type": "html",
     "thumbnail": "tomo_流れ星アート.png"
+  },
+  {
+    "id": "pgplus_ジャンピングひよこ",
+    "title": "ジャンピングひよこ",
+    "author": "pgplus",
+    "date": "2026-04-09",
+    "file": "pgplus_ジャンピングひよこ.html",
+    "type": "html",
+    "thumbnail": "pgplus_ジャンピングひよこ.png"
+  },
+  {
+    "id": "tomo_流れ星アート-1",
+    "title": "流れ星アート",
+    "author": "tomo",
+    "date": "2026-04-09",
+    "file": "tomo_流れ星アート-1.html",
+    "type": "html",
+    "thumbnail": "tomo_流れ星アート-1.png"
   }
 ]
