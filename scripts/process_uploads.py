@@ -28,7 +28,8 @@ if WORKS_JSON.exists():
 else:
     works = []
 
-existing_ids = {w["id"] for w in works}
+existing_ids  = {w["id"]   for w in works}
+existing_files = {w["file"] for w in works}  # 登録済みファイル名でも重複チェック
 
 for path in sorted(UPLOADS_DIR.glob("*.html")):
     stem = path.stem
@@ -39,18 +40,15 @@ for path in sorted(UPLOADS_DIR.glob("*.html")):
         author, title = "", stem
 
     work_id = re.sub(r"[^\w\-]", "-", stem, flags=re.UNICODE).strip("-") or stem
-    base_id = work_id
-    counter = 1
-    while work_id in existing_ids:
-        work_id = f"{base_id}-{counter}"
-        counter += 1
+    dest_file = f"{work_id}.html"
 
-    dest_html = WORKS_DIR / f"{work_id}.html"
-    if dest_html.exists():
+    # IDでもファイル名でも重複チェック
+    if work_id in existing_ids or dest_file in existing_files:
         print(f"スキップ（既に登録済み）: {path.name}")
         continue
 
-    print(f"コピー中: {path.name} → works/{work_id}.html")
+    dest_html = WORKS_DIR / dest_file
+    print(f"コピー中: {path.name} → works/{dest_file}")
     shutil.copy2(path, dest_html)
 
     # 同名のpngがあればサムネイルとしてコピー
@@ -69,12 +67,13 @@ for path in sorted(UPLOADS_DIR.glob("*.html")):
         "title":     title,
         "author":    author,
         "date":      date.today().isoformat(),
-        "file":      f"{work_id}.html",
+        "file":      dest_file,
         "type":      "html",
         "thumbnail": thumbnail,
     }
     works.append(entry)
     existing_ids.add(work_id)
+    existing_files.add(dest_file)
     print(f"  ✅ 追加: {title}（{author}）")
 
 with open(WORKS_JSON, "w", encoding="utf-8") as f:
